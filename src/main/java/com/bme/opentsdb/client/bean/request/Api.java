@@ -32,18 +32,29 @@ public enum Api {
     QUERY("/api/query"),
     LASTQUEERY("/api/query/last"),
 
-
     /**
      * 插入API端点
      */
     PUT("/api/put"),
     PUT_DETAIL("/api/put?details=true"),
 
-
     /**
      * 查询metric、tagk、tagv列表
      */
-    SUGGEST("/api/suggest");
+    SUGGEST("/api/suggest"),
+
+    S("/api/s"),
+    AGGREGATORS("/api/annotation"),
+    CONFIG("/api/config"),
+    DROPCACHES("/api/dropcaches"),
+    ROOLUP("/api/rollup"),
+    HISTOGRAM("/api/histogram"),
+    SEARCH("/api/search"),
+    SERIALIZERS("/api/serializers"),
+    STATS("/api/stats"),
+    TREE("/api/tree"),
+    UID("/api/uid"),
+    VERSION("/api/version");
 
     private String path;
 
