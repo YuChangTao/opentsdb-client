@@ -135,6 +135,7 @@ public class CrudTest extends ApplicationTests {
      *
      * @throws IOException
      */
+    @Test
     public void asyncPut() throws IOException {
         Point point = Point.metric("test")
                 .tag("test", "hello")
@@ -152,6 +153,7 @@ public class CrudTest extends ApplicationTests {
      *
      * @throws IOException
      */
+    @Test
     public void syncPut() throws IOException, ExecutionException, InterruptedException {
         Point point = Point.metric("test")
                 .tag("test", "hello")
