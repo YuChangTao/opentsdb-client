@@ -43,7 +43,8 @@ public class CrudTest extends ApplicationTests {
     @Before
     public void config() throws IOReactorException {
 
-        OpenTSDBConfig.address()
+        //自定义连接配置
+        OpenTSDBConfig config = OpenTSDBConfig.address()
                 // http连接池大小，默认100
                 .httpConnectionPool(100)
                 // http请求超时时间，默认100s
@@ -74,8 +75,10 @@ public class CrudTest extends ApplicationTests {
                     }
                 })
                 .config();
-        OpenTSDBConfig config = OpenTSDBConfig.address().config();
-        client = openTSDBClientFactory.build(config);
+//        client = openTSDBClientFactory.build(config);
+
+        //使用默认配置
+        client = openTSDBClientFactory.build();
     }
 
     /**
@@ -129,13 +132,14 @@ public class CrudTest extends ApplicationTests {
 
     /**
      * 异步写入数据
+     *
      * @throws IOException
      */
     public void asyncPut() throws IOException {
         Point point = Point.metric("test")
-                           .tag("test", "hello")
-                           .value(System.currentTimeMillis(), 1.1)
-                           .build();
+                .tag("test", "hello")
+                .value(System.currentTimeMillis(), 1.1)
+                .build();
         //异步写入数据,将数据放入队列消费
         client.put(point);
 
@@ -145,6 +149,7 @@ public class CrudTest extends ApplicationTests {
 
     /**
      * 同步写入数据
+     *
      * @throws IOException
      */
     public void syncPut() throws IOException, ExecutionException, InterruptedException {
@@ -243,13 +248,13 @@ public class CrudTest extends ApplicationTests {
             }
         };
         OpenTSDBConfig config = OpenTSDBConfig.address()
-                                              .batchPutCallBack(batchPutCallBack)
-                                              .config();
+                .batchPutCallBack(batchPutCallBack)
+                .config();
         OpenTSDBClient openTSDBClient = openTSDBClientFactory.build(config);
         Point point = Point.metric("batchPutCallback")
-                           .tag("testTag", "test_1")
-                           .value(System.currentTimeMillis(), 1.0)
-                           .build();
+                .tag("testTag", "test_1")
+                .value(System.currentTimeMillis(), 1.0)
+                .build();
         openTSDBClient.put(point);
         openTSDBClient.gracefulClose();
         /**
