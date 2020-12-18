@@ -1,16 +1,16 @@
 package com.bme.opentsdb.client.tsdb;
 
 import com.bme.opentsdb.client.ApplicationTests;
-import com.bme.opentsdb.client.bean.request.Point;
-import com.bme.opentsdb.client.bean.request.Query;
-import com.bme.opentsdb.client.bean.request.SubQuery;
+import com.bme.opentsdb.client.bean.request.*;
 import com.bme.opentsdb.client.bean.response.DetailResult;
+import com.bme.opentsdb.client.bean.response.LastPointQueryResult;
 import com.bme.opentsdb.client.bean.response.QueryResult;
 import com.bme.opentsdb.client.exception.HttpException;
 import com.bme.opentsdb.client.http.callback.BatchPutHttpResponseCallback;
 import com.bme.opentsdb.client.http.callback.QueryHttpResponseCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.nio.reactor.IOReactorException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,9 +160,107 @@ public class CrudTest extends ApplicationTests {
     }
 
 
+    /***
+     * 测试查询最新数据(同步)
+     * @throws Exception
+     */
+    @Test
+    public void testQueryLast() throws Exception {
+        LastPointQuery query = LastPointQuery.sub(LastPointSubQuery.metric("test")
+                .tag("test", "hello")
+                .build())
+                // baskScan表示查询最多向前推进多少小时
+                // 比如在5小时前写入过数据
+                // 那么backScan(6)可以查出数据，但backScan(4)则不行
+                .backScan(1000)
+                .build();
+        List<LastPointQueryResult> lastPointQueryResults = client.queryLast(query);
+        log.info("查询最新数据:{}", lastPointQueryResults);
+    }
 
+    /***
+     * 测试异步查询
+     * @throws Exception
+     */
+    @Test
+    public void testAsyncQuery() throws Exception {
+        int[] ints = new int[1];
+        QueryHttpResponseCallback.QueryCallback queryCallback = new QueryHttpResponseCallback.QueryCallback() {
+            @Override
+            public void response(Query query, List<QueryResult> queryResults) {
+                log.debug("success,result:{}", queryResults);
+            }
 
+            @Override
+            public void responseError(Query query, HttpException e) {
+                log.debug("fail,error:{}", e.getMessage());
+                e.printStackTrace();
+                ints[0] = 1;
+            }
 
+            @Override
+            public void failed(Query query, Exception e) {
+                e.printStackTrace();
+            }
+        };
+        Query query = Query.begin("20d-ago")
+                .sub(SubQuery.metric("point")
+                        .aggregator(SubQuery.Aggregator.NONE)
+                        /**
+                         * 特意写错，会触发callback中分failed方法
+                         */
+                        .downsample("0all-su")
+                        .build())
+                .build();
+        client.query(query, queryCallback);
+        client.gracefulClose();
+        Assert.assertEquals(1, ints[0]);
+    }
+
+    /***
+     * 测试写入回调
+     * @throws Exception
+     */
+    @Test
+    public void testPutCallback() throws Exception {
+        int[] ints = new int[2];
+        BatchPutHttpResponseCallback.BatchPutCallBack batchPutCallBack = new BatchPutHttpResponseCallback.BatchPutCallBack() {
+            @Override
+            public void response(List<Point> points, DetailResult result) {
+                log.debug("添加成功，detail:{}", result);
+                ints[0] = 1;
+            }
+
+            @Override
+            public void responseError(List<Point> points, DetailResult result) {
+                log.debug("添加失败，detail:{}", result);
+                ints[1] = 1;
+            }
+
+            @Override
+            public void failed(List<Point> points, Exception e) {
+
+            }
+        };
+        OpenTSDBConfig config = OpenTSDBConfig.address()
+                                              .batchPutCallBack(batchPutCallBack)
+                                              .config();
+        OpenTSDBClient openTSDBClient = openTSDBClientFactory.build(config);
+        Point point = Point.metric("batchPutCallback")
+                           .tag("testTag", "test_1")
+                           .value(System.currentTimeMillis(), 1.0)
+                           .build();
+        openTSDBClient.put(point);
+        openTSDBClient.gracefulClose();
+        /**
+         * 测试response
+         */
+        Assert.assertEquals(1, ints[0]);
+        /***
+         * 测试error
+         */
+        //Assert.assertEquals(1, ints[1]);
+    }
 
 
 }
