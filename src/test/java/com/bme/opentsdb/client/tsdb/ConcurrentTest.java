@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.*;
@@ -82,23 +84,11 @@ public class ConcurrentTest extends CrudTest {
 
     }
 
-
     /***
      * 并发写入测试，运行前需要先清除metric为point的数据
      */
     @Test
     public void batchPut() throws Exception {
-        /**
-         * 删除数据
-         *//*
-        Query delete = Query.begin("30d-ago")
-                            .delete()
-                            .sub(SubQuery.metric("point")
-                                         .aggregator(SubQuery.Aggregator.NONE)
-                                         .build())
-                            .build();
-        client.query(delete);*/
-
         /***
          * 使用5个线程，每个线程都写入100000条数据
          */
@@ -137,7 +127,7 @@ public class ConcurrentTest extends CrudTest {
 
         latch.await();
         long end = System.currentTimeMillis();
-        log.debug("运行时间:{}毫秒", end - start);
+        log.info("运行时间:{}毫秒", end - start);
         /***
          * 等待10秒，因为下面查询还需要用到client，所以这里先不关闭client，用沉睡线程的方式等待队列中所有任务完成
          */
@@ -175,6 +165,26 @@ public class ConcurrentTest extends CrudTest {
             });
         }
         client.gracefulClose();
+    }
+
+    /**
+     * 删除数据
+     */
+    @Test
+    public void delete() throws InterruptedException, ExecutionException, IOException, NoSuchFieldException, IllegalAccessException {
+        long s = System.currentTimeMillis();
+        Query delete = Query.begin("30d-ago")
+                .sub(SubQuery.metric("point")
+                        .aggregator(SubQuery.Aggregator.NONE)
+                        .downsample("1h-avg")
+                        .build())
+                .build();
+        //反射设置开启删除
+/*        Field field = Query.class.getDeclaredField("delete");
+        field.setAccessible(true);
+        field.set(delete, true);*/
+        client.query(delete);
+        log.info("删除时间:{}毫秒", System.currentTimeMillis() - s);
     }
 
 }

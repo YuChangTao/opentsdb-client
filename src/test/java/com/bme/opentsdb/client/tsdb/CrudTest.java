@@ -26,8 +26,6 @@ import java.util.concurrent.ExecutionException;
  * @date 2020/12/18
  */
 @Slf4j
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
 public class CrudTest extends ApplicationTests {
 
     OpenTSDBClient client;
@@ -130,61 +128,6 @@ public class CrudTest extends ApplicationTests {
     }
 
 
-    /**
-     * 异步写入数据
-     *
-     * @throws IOException
-     */
-    @Test
-    public void asyncPut() throws IOException {
-        Point point = Point.metric("test")
-                .tag("test", "hello")
-                .value(System.currentTimeMillis(), 1.1)
-                .build();
-        //异步写入数据,将数据放入队列消费
-        client.put(point);
-
-        //请求执行完优雅关闭http客户端
-        client.gracefulClose();
-    }
-
-    /**
-     * 同步写入数据
-     *
-     * @throws IOException
-     */
-    @Test
-    public void syncPut() throws IOException, ExecutionException, InterruptedException {
-        Point point = Point.metric("test")
-                .tag("test", "hello")
-                .value(System.currentTimeMillis(), 1.1)
-                .build();
-        //同步写入数据
-        client.putSync(point);
-
-        //请求执行完优雅关闭http客户端
-        client.gracefulClose();
-    }
-
-
-    /***
-     * 测试查询最新数据(同步)
-     * @throws Exception
-     */
-    @Test
-    public void testQueryLast() throws Exception {
-        LastPointQuery query = LastPointQuery.sub(LastPointSubQuery.metric("test")
-                .tag("test", "hello")
-                .build())
-                // baskScan表示查询最多向前推进多少小时
-                // 比如在5小时前写入过数据
-                // 那么backScan(6)可以查出数据，但backScan(4)则不行
-                .backScan(1000)
-                .build();
-        List<LastPointQueryResult> lastPointQueryResults = client.queryLast(query);
-        log.info("查询最新数据:{}", lastPointQueryResults);
-    }
-
     /***
      * 测试异步查询
      * @throws Exception
@@ -224,6 +167,62 @@ public class CrudTest extends ApplicationTests {
         Assert.assertEquals(1, ints[0]);
     }
 
+
+    /***
+     * 测试查询最新数据(同步)
+     * @throws Exception
+     */
+    @Test
+    public void testQueryLast() throws Exception {
+        LastPointQuery query = LastPointQuery.sub(LastPointSubQuery.metric("test")
+                .tag("test", "hello")
+                .build())
+                // baskScan表示查询最多向前推进多少小时
+                // 比如在5小时前写入过数据
+                // 那么backScan(6)可以查出数据，但backScan(4)则不行
+                .backScan(1000)
+                .build();
+        List<LastPointQueryResult> lastPointQueryResults = client.queryLast(query);
+        log.info("查询最新数据:{}", lastPointQueryResults);
+    }
+
+    /**
+     * 异步写入数据，放入队列
+     *
+     * @throws IOException
+     */
+    @Test
+    public void asyncPut() throws IOException {
+        Point point = Point.metric("test")
+                .tag("test", "hello")
+                .value(System.currentTimeMillis(), 1.1)
+                .build();
+        //异步写入数据,将数据放入队列消费
+        client.put(point);
+
+        //请求执行完优雅关闭http客户端
+        client.gracefulClose();
+    }
+
+    /**
+     * 同步写入数据
+     *
+     * @throws IOException
+     */
+    @Test
+    public void syncPut() throws IOException, ExecutionException, InterruptedException {
+        Point point = Point.metric("test")
+                .tag("test", "hello")
+                .value(System.currentTimeMillis(), 1.1)
+                .build();
+        //同步写入数据
+        client.putSync(point);
+
+        //请求执行完优雅关闭http客户端
+        client.gracefulClose();
+    }
+
+
     /***
      * 测试写入回调
      * @throws Exception
@@ -249,9 +248,7 @@ public class CrudTest extends ApplicationTests {
 
             }
         };
-        OpenTSDBConfig config = OpenTSDBConfig.address()
-                .batchPutCallBack(batchPutCallBack)
-                .config();
+        OpenTSDBConfig config = OpenTSDBConfig.address().batchPutCallBack(batchPutCallBack).config();
         OpenTSDBClient openTSDBClient = openTSDBClientFactory.build(config);
         Point point = Point.metric("batchPutCallback")
                 .tag("testTag", "test_1")

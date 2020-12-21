@@ -105,7 +105,7 @@ public class OpenTSDBClient {
     }
 
     /***
-     * 异步写入
+     * 异步写入队列
      * @param point 数据点
      */
     public void put(Point point) {
@@ -124,7 +124,7 @@ public class OpenTSDBClient {
     }
 
     /***
-     * 同步写入
+     * 同步批量写入
      * @param points
      */
     public void putSync(List<Point> points) throws IOException, ExecutionException, InterruptedException {
@@ -138,7 +138,7 @@ public class OpenTSDBClient {
     }
 
     /***
-     * 同步写入,将会使用创建opentsdbClient时默认的callback
+     * 同步写入,将会使用创建OpenTSDBClient时默认的callback
      * @param point
      */
     public void putSyncWithCallBack(Point point) throws IOException, ExecutionException, InterruptedException {
@@ -146,7 +146,7 @@ public class OpenTSDBClient {
     }
 
     /***
-     * 同步写入,将会使用创建opentsdbClient时默认的callback
+     * 同步写入,将会使用创建OpenTSDBClient时默认的callback
      * @param points
      */
     public void putSyncWithCallBack(List<Point> points) throws IOException, ExecutionException, InterruptedException {
@@ -162,6 +162,7 @@ public class OpenTSDBClient {
     /***
      * 同步写入,使用自定义的callback
      * @param point
+     * @param callBack 自定义写入回调
      */
     public void putSyncWithCallBack(Point point, BatchPutHttpResponseCallback.BatchPutCallBack callBack) throws
             JsonProcessingException {
@@ -171,6 +172,7 @@ public class OpenTSDBClient {
     /***
      * 同步写入,使用自定义的callback
      * @param points
+     * @param callBack 自定义写入回调
      */
     public void putSyncWithCallBack(List<Point> points, BatchPutHttpResponseCallback.BatchPutCallBack callBack) throws JsonProcessingException {
         httpClient.post(
@@ -181,15 +183,8 @@ public class OpenTSDBClient {
     }
 
     /***
-     * 同步写入
-     * @param point
-     */
-    public void putSync(Point point, BatchPutHttpResponseCallback.BatchPutCallBack callBack) throws IOException, ExecutionException, InterruptedException {
-        this.putSync(Lists.newArrayList(point));
-    }
-
-    /***
-     * 删除数据，返回删除的数据
+     * 同步删除数据，返回删除的数据
+     * 慎重使用
      * @param query 查询对象
      */
     public List<QueryResult> delete(Query query) throws IllegalAccessException, ExecutionException, InterruptedException, IOException {
@@ -214,6 +209,22 @@ public class OpenTSDBClient {
         List<String> results = Json.readValue(ResponseUtil.getContent(response), List.class, String.class);
         return results;
     }
+
+    /**
+     * 列出时间序列查询中使用的已实现聚合函数的名称
+     *
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public List<String> queryAggregators() throws ExecutionException, InterruptedException, IOException {
+        Future<HttpResponse> future = httpClient.post(Api.AGGREGATORS.getPath(), null);
+        HttpResponse response = future.get();
+        List<String> results = Json.readValue(ResponseUtil.getContent(response), List.class, String.class);
+        return results;
+    }
+
 
     /***
      * 优雅关闭链接，会等待所有消费者线程结束

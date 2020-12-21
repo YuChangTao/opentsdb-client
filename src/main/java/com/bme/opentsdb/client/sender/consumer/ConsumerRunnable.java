@@ -60,7 +60,7 @@ public class ConsumerRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            log.debug("thread:{} has started take point from queue", Thread.currentThread().getName());
+            log.debug("consumer thread:{} has started take point from queue", Thread.currentThread().getName());
 
             boolean readyClose = false;
             //从队列中获取数据等待最大时长
@@ -93,7 +93,7 @@ public class ConsumerRunnable implements Runnable {
                     } catch (InterruptedException e) {
                         //结束线程
                         readyClose = true;
-                        log.info("The thread {} is interrupted", Thread.currentThread().getName());
+                        log.info("The consumer thread {} is interrupted", Thread.currentThread().getName());
                         break;
                     }
                 }
@@ -105,7 +105,7 @@ public class ConsumerRunnable implements Runnable {
                     } catch (InterruptedException e) {
                         //结束线程
                         readyClose = true;
-                        log.info("The thread {} is interrupted", Thread.currentThread().getName());
+                        log.info("The consumer thread {} is interrupted", Thread.currentThread().getName());
                     }
                     continue;
                 }

@@ -44,7 +44,7 @@ public enum Api {
     SUGGEST("/api/suggest"),
 
     S("/api/s"),
-    AGGREGATORS("/api/annotation"),
+    AGGREGATORS("/api/aggregators"),
     CONFIG("/api/config"),
     DROPCACHES("/api/dropcaches"),
     ROOLUP("/api/rollup"),
