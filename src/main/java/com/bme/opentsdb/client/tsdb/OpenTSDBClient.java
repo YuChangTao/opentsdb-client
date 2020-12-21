@@ -15,6 +15,7 @@ import com.bme.opentsdb.client.sender.producer.Producer;
 import com.bme.opentsdb.client.sender.producer.ProducerImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -31,6 +32,7 @@ import java.util.concurrent.*;
  * @date 2020/12/17
  */
 @Slf4j
+@Data
 public class OpenTSDBClient {
 
     private final OpenTSDBConfig config;

@@ -2,6 +2,7 @@ package com.bme.opentsdb.client.http;
 
 import com.bme.opentsdb.client.tsdb.OpenTSDBConfig;
 import com.bme.opentsdb.client.http.callback.GracefulCloseFutureCallBack;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2020/12/16
  */
 @Slf4j
+@Data
 public class HttpClient {
 
     private String host;
