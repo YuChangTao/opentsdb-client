@@ -2,8 +2,16 @@ asyncclient: <a>http://hc.apache.org/httpcomponents-asyncclient-4.1.x/</a>
 
 opentsdb: <a>http://opentsdb.net/docs/build/html/api_http/index.html</a>
 
+使用默认OpenTSDB客户端（推荐 ）
+```java
+@Resource
+private OpenTSDBClient client;
+```
 
-获取OpenTSDB客户端
+
+
+
+自定义OpenTSDB客户端
 ```java
 public class CrudTest {
 
