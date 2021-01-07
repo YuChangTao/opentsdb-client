@@ -17,10 +17,8 @@ import java.util.Collection;
 /**
  * 配置一个单例的jackson objectMapper，同时防止外部修改mapper的配置
  *
- * @Description:
- * @Author: jinyao
- * @CreateDate: 2019/2/22 下午1:21
- * @Version: 1.0
+ * @author yutyi
+ * @date 2020/12/16
  */
 public class Json {
 
@@ -52,7 +50,7 @@ public class Json {
     /***
      * 将对象序列化为json字符串
      * @param value 具体对象
-     * @return
+     * @return String
      * @throws JsonProcessingException
      */
     public static String writeValueAsString(Object value) throws JsonProcessingException {

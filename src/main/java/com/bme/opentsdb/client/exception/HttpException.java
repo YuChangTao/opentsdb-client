@@ -4,10 +4,10 @@ import com.bme.opentsdb.client.bean.response.ErrorResponse;
 import lombok.Data;
 
 /**
- * @Description:
- * @Author: jinyao
- * @CreateDate: 2019/2/22 下午7:40
- * @Version: 1.0
+ * Http异常
+ *
+ * @author yutyi
+ * @date 2020/12/16
  */
 @Data
 public class HttpException extends RuntimeException {

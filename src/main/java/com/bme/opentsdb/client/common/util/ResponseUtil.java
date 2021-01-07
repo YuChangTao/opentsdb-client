@@ -12,12 +12,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
- * 响应解析工具类
+ * Http响应工具类
  *
- * @Description:
- * @Author: jinyao
- * @CreateDate: 2019/2/22 下午7:30
- * @Version: 1.0
+ * @author yutyi
+ * @date 2020/12/16
  */
 public class ResponseUtil {
 
