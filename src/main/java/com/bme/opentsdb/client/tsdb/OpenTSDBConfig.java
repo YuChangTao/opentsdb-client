@@ -160,10 +160,6 @@ public class OpenTSDBConfig {
 
     }
 
-    public static Builder address() {
-        return address(null, 0);
-    }
-
     public static Builder address(String host, int port) {
         return new Builder(host, port);
     }

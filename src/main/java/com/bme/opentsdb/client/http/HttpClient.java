@@ -1,7 +1,7 @@
 package com.bme.opentsdb.client.http;
 
-import com.bme.opentsdb.client.tsdb.OpenTSDBConfig;
 import com.bme.opentsdb.client.http.callback.GracefulCloseFutureCallBack;
+import com.bme.opentsdb.client.tsdb.OpenTSDBConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -10,9 +10,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -95,8 +96,8 @@ public class HttpClient {
 
     /**
      * 获取请求url
-     * @param path
-     * @return
+     * @param path 路径
+     * @return String
      */
     private String getUrl(String path) {
         return host + ":" + port + path;
@@ -105,11 +106,10 @@ public class HttpClient {
     /**
      * 构建请求体
      * @param json 请求参数json字符串
-     * @return
+     * @return StringEntity
      */
     private StringEntity generateStringEntity(String json) {
-        StringEntity stringEntity = new StringEntity(json, Charset.forName("UTF-8"));
-        return stringEntity;
+        return new StringEntity(json, StandardCharsets.UTF_8);
     }
 
 

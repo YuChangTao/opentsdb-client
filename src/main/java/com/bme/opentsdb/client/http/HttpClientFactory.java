@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -23,10 +22,11 @@ import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,6 +40,8 @@ public class HttpClientFactory {
 
     private static final AtomicInteger NUM = new AtomicInteger();
 
+    private static HttpClient httpClient;
+
     /**
      * 获取HttpClient
      * <p>
@@ -50,25 +52,31 @@ public class HttpClientFactory {
      * @throws IOReactorException
      */
     public static HttpClient createHttpClient(OpenTSDBConfig config) throws IOReactorException {
-        //判断config是否为null
-        Objects.requireNonNull(config);
+        if (httpClient == null) {
+            synchronized (HttpClientFactory.class) {
+                //判断config是否为null
+                Objects.requireNonNull(config);
 
-        Registry<SchemeIOSessionStrategy> registry = RegistryBuilder.<SchemeIOSessionStrategy>create()
-                .register("http", NoopIOSessionStrategy.INSTANCE)
-                .register("https", SSLIOSessionStrategy.getDefaultStrategy())
-                .build();
-        //初始化IO线程数
-        ConnectingIOReactor ioReactor = initIOReactorConfig();
-        //创建连接池
-        PoolingNHttpClientConnectionManager manager = new PoolingNHttpClientConnectionManager(ioReactor, registry);
+                Registry<SchemeIOSessionStrategy> registry = RegistryBuilder.<SchemeIOSessionStrategy>create()
+                        .register("http", NoopIOSessionStrategy.INSTANCE)
+                        .register("https", SSLIOSessionStrategy.getDefaultStrategy())
+                        .build();
+                //初始化IO线程数
+                ConnectingIOReactor ioReactor = initIOReactorConfig();
+                //创建连接池
+                PoolingNHttpClientConnectionManager manager = new PoolingNHttpClientConnectionManager(ioReactor, registry);
 
-        //初始化请求配置
-        RequestConfig requestConfig = initRequestConfig(config);
-        //从连接池中获取CloseableHttpAsyncClient
-        CloseableHttpAsyncClient httpAsyncClient = createPoolingHttpClient(requestConfig, manager, config);
+                //初始化请求配置
+                RequestConfig requestConfig = initRequestConfig(config);
+                //从连接池中获取CloseableHttpAsyncClient
+                CloseableHttpAsyncClient httpAsyncClient = createPoolingHttpClient(requestConfig, manager, config);
 
-
-        return new HttpClient(config, httpAsyncClient, initFixedCycleCloseConnection(manager));
+                httpClient = new HttpClient(config, httpAsyncClient, initFixedCycleCloseConnection(manager));
+                httpClient.start();
+                return httpClient;
+            }
+        }
+        return httpClient;
     }
 
 
@@ -138,8 +146,7 @@ public class HttpClientFactory {
         }
 
         //从连接池创建CloseableHttpAsyncClient
-        CloseableHttpAsyncClient client = httpAsyncClientBuilder.build();
-        return client;
+        return httpAsyncClientBuilder.build();
     }
 
     /**
@@ -148,25 +155,21 @@ public class HttpClientFactory {
      * @return
      */
     private static ConnectionKeepAliveStrategy myStrategy() {
-        ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
-            @Override
-            public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-                HeaderElementIterator it = new BasicHeaderElementIterator
-                        (response.headerIterator(HTTP.CONN_KEEP_ALIVE));
-                while (it.hasNext()) {
-                    HeaderElement he = it.nextElement();
-                    String param = he.getName();
-                    String value = he.getValue();
-                    if (value != null && param.equalsIgnoreCase
-                            ("timeout")) {
-                        return Long.parseLong(value) * 1000;
-                    }
+        return (response, context) -> {
+            HeaderElementIterator it = new BasicHeaderElementIterator
+                    (response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+            while (it.hasNext()) {
+                HeaderElement he = it.nextElement();
+                String param = he.getName();
+                String value = he.getValue();
+                if (value != null && param.equalsIgnoreCase
+                        ("timeout")) {
+                    return Long.parseLong(value) * 1000;
                 }
-                //如果没有约定，则默认定义时长为60s
-                return 60 * 1000;
             }
+            //如果没有约定，则默认定义时长为60s
+            return 60 * 1000;
         };
-        return myStrategy;
     }
 
     /**

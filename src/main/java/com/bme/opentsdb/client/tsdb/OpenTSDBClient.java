@@ -54,7 +54,7 @@ public class OpenTSDBClient {
         this.config = config;
         //从连接池获取客户端
         this.httpClient = HttpClientFactory.createHttpClient(config);
-        this.httpClient.start();
+//        this.httpClient.start();
 
         if (!config.isReadonly()) {
             this.queue = new ArrayBlockingQueue<>(config.getBatchPutBufferSize());

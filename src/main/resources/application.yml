@@ -7,7 +7,8 @@ spring:
 
 
 opentsdb:
-  host: http://172.31.141.3
-  port: 4399
+  config:
+    host: http://localhost
+    port: 9070
 
 debug: false

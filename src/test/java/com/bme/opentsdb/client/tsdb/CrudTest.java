@@ -30,9 +30,6 @@ public class CrudTest extends ApplicationTests {
 
     OpenTSDBClient client;
 
-    @Autowired
-    OpenTSDBClientFactory openTSDBClientFactory;
-
     /**
      * 初始化连接
      *
@@ -42,7 +39,7 @@ public class CrudTest extends ApplicationTests {
     public void config() throws IOReactorException {
 
         //自定义连接配置
-        OpenTSDBConfig config = OpenTSDBConfig.address()
+        OpenTSDBConfig config = OpenTSDBConfig.address("172.31.141.3", 4399)
                 // http连接池大小，默认100
                 .httpConnectionPool(100)
                 // http请求超时时间，默认100s
@@ -73,10 +70,7 @@ public class CrudTest extends ApplicationTests {
                     }
                 })
                 .config();
-//        client = openTSDBClientFactory.build(config);
-
-        //使用默认配置
-        client = openTSDBClientFactory.build();
+        client = OpenTSDBClientFactory.build(config);
     }
 
     /**
@@ -248,8 +242,8 @@ public class CrudTest extends ApplicationTests {
 
             }
         };
-        OpenTSDBConfig config = OpenTSDBConfig.address().batchPutCallBack(batchPutCallBack).config();
-        OpenTSDBClient openTSDBClient = openTSDBClientFactory.build(config);
+        OpenTSDBConfig config = OpenTSDBConfig.address("172.31.141.3", 4399).batchPutCallBack(batchPutCallBack).config();
+        OpenTSDBClient openTSDBClient = OpenTSDBClientFactory.build(config);
         Point point = Point.metric("batchPutCallback")
                 .tag("testTag", "test_1")
                 .value(System.currentTimeMillis(), 1.0)
