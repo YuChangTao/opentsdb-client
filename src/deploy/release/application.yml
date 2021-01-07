@@ -1,0 +1,13 @@
+server:
+  port: 4398
+
+spring:
+  application:
+    name: bme-opentsdb-client
+
+opentsdb:
+  config:
+    host: http://172.31.141.3
+    port: 4399
+
+debug: false
