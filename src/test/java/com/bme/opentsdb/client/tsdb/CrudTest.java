@@ -39,7 +39,7 @@ public class CrudTest extends ApplicationTests {
     public void config() throws IOReactorException {
 
         //自定义连接配置
-        OpenTSDBConfig config = OpenTSDBConfig.address("172.31.141.3", 4399)
+        OpenTSDBConfig config = OpenTSDBConfig.address("http://172.31.141.3", 4399)
                 // http连接池大小，默认100
                 .httpConnectionPool(100)
                 // http请求超时时间，默认100s
@@ -51,7 +51,7 @@ public class CrudTest extends ApplicationTests {
                 // 异步写入等待时间，如果距离上一次请求超多300ms，且有数据，则直接提交
                 .batchPutTimeLimit(300)
                 // 当确认这个client只用于查询时设置，可不创建内部队列从而提高效率
-                .readonly()
+//                .readonly()
                 // 每批数据提交完成后回调
                 .batchPutCallBack(new BatchPutHttpResponseCallback.BatchPutCallBack() {
                     @Override
