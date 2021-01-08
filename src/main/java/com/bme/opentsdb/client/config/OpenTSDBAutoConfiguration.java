@@ -3,12 +3,12 @@ package com.bme.opentsdb.client.config;
 import com.bme.opentsdb.client.tsdb.OpenTSDBClient;
 import com.bme.opentsdb.client.tsdb.OpenTSDBClientFactory;
 import com.bme.opentsdb.client.tsdb.OpenTSDBConfig;
-import lombok.Data;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -19,19 +19,14 @@ import java.util.Objects;
  * @date 2021/1/7 17:13
  */
 @Configuration
-@Data
-@ConfigurationProperties("opentsdb.config")
+@Import(OpenTSDBConfig.class)
 public class OpenTSDBAutoConfiguration {
-
-    private String host;
-    private Integer port;
 
     @Bean
     @ConditionalOnMissingBean(name = {"openTSDBClient"})
-    public OpenTSDBClient openTSDBClient() throws IOReactorException {
-        Objects.requireNonNull(host, "host");
-        Objects.requireNonNull(port, "port");
-        OpenTSDBConfig config = OpenTSDBConfig.address(host, port).config();
+    public OpenTSDBClient openTSDBClient(OpenTSDBConfig config) throws IOReactorException {
+        Objects.requireNonNull(config.getHost(), "host required");
+        Assert.isTrue(config.getPort() > 0, "port must be greater than 0");
         return OpenTSDBClientFactory.build(config);
     }
 

@@ -2,6 +2,7 @@ package com.bme.opentsdb.client.tsdb;
 
 import com.bme.opentsdb.client.http.callback.BatchPutHttpResponseCallback;
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * OpenTSDB连接配置
@@ -10,6 +11,7 @@ import lombok.Data;
  * @date 2020/12/16
  */
 @Data
+@ConfigurationProperties("opentsdb.config")
 public class OpenTSDBConfig {
 
     private String host;

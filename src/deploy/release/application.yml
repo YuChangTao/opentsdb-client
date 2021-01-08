@@ -9,5 +9,11 @@ opentsdb:
   config:
     host: http://172.31.141.3
     port: 4399
-
+    httpConnectionPool: 100
+    httpConnectTimeout: 100
+    putConsumerThreadCount: 2
+    batchPutSize: 20000
+    batchPutBufferSize: 50
+    batchPutTimeLimit: 300
+    readonly: false
 debug: false

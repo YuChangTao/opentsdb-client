@@ -54,10 +54,7 @@ public class CrudTest {
                     }
                 })
                 .config();
-//        client = openTSDBClientFactory.build(config);
-
-        //使用默认配置
-        client = openTSDBClientFactory.build();
+        client = openTSDBClientFactory.build(config);
     }
 }
 
