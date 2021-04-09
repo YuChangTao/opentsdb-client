@@ -59,3 +59,21 @@ public class CrudTest {
 }
 
 ```
+
+
+
+第三方引入
+1. 使用maven install将项目安装到本地仓库，引入依赖
+```xml
+        <dependency>
+            <groupId>com.bme.opentsdb.client</groupId>
+            <artifactId>opentsdb-client</artifactId>
+            <version>1.0</version>
+        </dependency>
+```
+2. springboot启动类添加`@EnableOpenTSDBClient`注解即可，客户端可直接注入获取
+```java
+@Resource
+private OpenTSDBClient client;
+```
+

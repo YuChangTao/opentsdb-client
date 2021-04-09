@@ -10,7 +10,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.bme.opentsdb.client</groupId>
-    <artifactId>bme-opentsdb-client</artifactId>
+    <artifactId>opentsdb-client</artifactId>
     <version>1.0</version>
 
     <properties>
