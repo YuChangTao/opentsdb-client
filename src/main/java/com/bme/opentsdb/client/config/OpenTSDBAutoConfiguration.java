@@ -4,6 +4,7 @@ import com.bme.opentsdb.client.tsdb.OpenTSDBClient;
 import com.bme.opentsdb.client.tsdb.OpenTSDBClientFactory;
 import com.bme.opentsdb.client.tsdb.OpenTSDBConfig;
 import org.apache.http.nio.reactor.IOReactorException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import java.util.Objects;
  */
 @Configuration
 @Import(OpenTSDBConfig.class)
+@ConditionalOnBean(OpenTSDBClientMarkerConfiguration.Marker.class)
 public class OpenTSDBAutoConfiguration {
 
     @Bean

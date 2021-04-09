@@ -3,13 +3,13 @@ server:
 
 spring:
   application:
-    name: bme-opentsdb-client
+    name: opentsdb-client
 
 
 opentsdb:
   config:
     host: http://localhost
-    port: 9070
+    port: 4399
     httpConnectionPool: 100
     httpConnectTimeout: 100
     putConsumerThreadCount: 2

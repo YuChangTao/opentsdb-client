@@ -1,11 +1,11 @@
 package com.bme.opentsdb.client.sender.consumer;
 
-import com.bme.opentsdb.client.tsdb.OpenTSDBConfig;
 import com.bme.opentsdb.client.bean.request.Api;
 import com.bme.opentsdb.client.bean.request.Point;
 import com.bme.opentsdb.client.common.Json;
 import com.bme.opentsdb.client.http.HttpClient;
 import com.bme.opentsdb.client.http.callback.BatchPutHttpResponseCallback;
+import com.bme.opentsdb.client.tsdb.OpenTSDBConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 

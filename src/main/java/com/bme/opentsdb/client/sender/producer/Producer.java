@@ -1,5 +1,6 @@
 package com.bme.opentsdb.client.sender.producer;
 
+
 import com.bme.opentsdb.client.bean.request.Point;
 
 /**

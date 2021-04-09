@@ -107,6 +107,28 @@ public class OpenTSDBClient {
     }
 
     /***
+     * 同步写入
+     * @param rollupPoint
+     */
+    public void rollupSync(RollupPoint rollupPoint) throws IOException, ExecutionException, InterruptedException {
+        this.rollupSync(Lists.newArrayList(rollupPoint));
+    }
+
+    /***
+     * 同步批量写入
+     * @param rollupPoints
+     */
+    public void rollupSync(List<RollupPoint> rollupPoints) throws IOException, ExecutionException, InterruptedException {
+        Future<HttpResponse> future = httpClient.post(
+                Api.ROOLUP.getPath(),
+                Json.writeValueAsString(rollupPoints),
+                new BatchPutHttpResponseCallback()
+        );
+        HttpResponse httpResponse = future.get();
+        ResponseUtil.getContent(httpResponse);
+    }
+
+    /***
      * 异步写入队列
      * @param point 数据点
      */

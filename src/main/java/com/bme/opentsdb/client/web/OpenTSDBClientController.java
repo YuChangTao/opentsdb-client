@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,7 @@ import java.util.concurrent.TimeoutException;
 public class OpenTSDBClientController {
 
     @Resource
-    private OpenTSDBClient client;
+    private OpenTSDBClient openTSDBClient;
 
     @GetMapping("/query")
     public List<QueryResult> query(String metric) throws IOException, InterruptedException, ExecutionException {
@@ -47,7 +46,7 @@ public class OpenTSDBClientController {
                         .aggregator(SubQuery.Aggregator.NONE)
                         .build())
                 .build();
-        return client.query(query);
+        return openTSDBClient.query(query);
     }
 
     @GetMapping("/put")
@@ -57,7 +56,7 @@ public class OpenTSDBClientController {
                 .value(System.currentTimeMillis(), 1.1)
                 .build();
         //异步写入数据,将数据放入队列消费
-        client.put(point);
+        openTSDBClient.put(point);
     }
 
     @GetMapping("/test")
@@ -65,7 +64,7 @@ public class OpenTSDBClientController {
         //异步写入数据,将数据放入队列消费
         Map<String, Object> map = new HashMap<>(1);
         map.put("customerId", 1);
-        Future<HttpResponse> future = client.getHttpClient().post("/screen/intelligent_control/getVideoConf?customerId=1", Json.writeValueAsString(map), new FutureCallback<HttpResponse>() {
+        Future<HttpResponse> future = openTSDBClient.getHttpClient().post("/screen/intelligent_control/getVideoConf?customerId=1", Json.writeValueAsString(map), new FutureCallback<HttpResponse>() {
             @SneakyThrows
             @Override
             public void completed(HttpResponse result) {

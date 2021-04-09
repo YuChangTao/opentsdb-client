@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: bme-opentsdb-client
+    name: opentsdb-client
 
 opentsdb:
   config:
